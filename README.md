@@ -1,36 +1,36 @@
 # Media Management Platform
 
-## Descripción
+## Description
 
-Esta es una plataforma de gestión de medios que permite a los usuarios administrar pantallas, listas de reproducción y contenido multimedia como imágenes y videos. La aplicación está construida utilizando **Next.js**, **Firebase** y **Tailwind CSS**.
+This is a media management platform that allows users to manage screens, playlists, and multimedia content such as images and videos. The application is built using **Next.js**, **Firebase**, and **Tailwind CSS**.
 
-## Características
+## Features
 
-- **Gestión de Pantallas**: Crear, editar y asignar listas de reproducción a pantallas específicas.
-- **Gestión de Listas de Reproducción**: Crear y organizar listas de reproducción con contenido multimedia.
-- **Gestión de Contenido**: Subir y administrar imágenes y videos.
-- **Autenticación**: Inicio de sesión seguro utilizando Firebase Authentication.
-- **Base de Datos en Tiempo Real**: Almacenar y sincronizar datos utilizando Firestore.
+- **Screen Management**: Create, edit, and assign playlists to specific screens.
+- **Playlist Management**: Create and organize playlists with multimedia content.
+- **Content Management**: Upload and manage images and videos.
+- **Authentication**: Secure login using Firebase Authentication.
+- **Real-Time Database**: Store and sync data using Firestore.
 
-## Tecnologías Utilizadas
+## Technologies Used
 
-- **Next.js**: Framework de React para aplicaciones web.
-- **Firebase**: Backend como servicio para autenticación, base de datos y almacenamiento.
-- **Tailwind CSS**: Framework de CSS para diseño responsivo y moderno.
-- **React Hook Form**: Manejo de formularios con validación.
-- **Zod**: Validación de esquemas de datos.
+- **Next.js**: React framework for web applications.
+- **Firebase**: Backend-as-a-service for authentication, database, and storage.
+- **Tailwind CSS**: CSS framework for responsive and modern design.
+- **React Hook Form**: Form handling with validation.
+- **Zod**: Data schema validation.
 
-## Instalación
+## Installation
 
-1. Clona este repositorio:
+1. Clone this repository:
    ```bash
-   git clone <URL_DEL_REPOSITORIO>
+   git clone <REPOSITORY_URL>
    ```
-2. Instala las dependencias:
+2. Install dependencies:
    ```bash
    npm install
    ```
-3. Crea un archivo `.env.local` en la raíz del proyecto y configura las variables de entorno necesarias:
+3. Create a `.env.local` file in the root of the project and configure the required environment variables:
    ```env
    NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
    NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_auth_domain
@@ -39,13 +39,13 @@ Esta es una plataforma de gestión de medios que permite a los usuarios administ
    NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
    NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
    ```
-4. Inicia el servidor de desarrollo:
+4. Start the development server:
    ```bash
    npm run dev
    ```
-5. Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
+5. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Estructura del Proyecto
+## Project Structure
 
 ```
 media/
@@ -71,29 +71,29 @@ media/
 └── tsconfig.json
 ```
 
-## Scripts Disponibles
+## Available Scripts
 
-- `npm run dev`: Inicia el servidor de desarrollo.
-- `npm run build`: Construye la aplicación para producción.
-- `npm run start`: Inicia el servidor en modo producción.
+- `npm run dev`: Starts the development server.
+- `npm run build`: Builds the application for production.
+- `npm run start`: Starts the server in production mode.
 
-## Contribución
+## Contribution
 
-1. Haz un fork del repositorio.
-2. Crea una rama para tu feature:
+1. Fork the repository.
+2. Create a branch for your feature:
    ```bash
-   git checkout -b feature/nueva-feature
+   git checkout -b feature/new-feature
    ```
-3. Realiza tus cambios y haz commit:
+3. Make your changes and commit them:
    ```bash
-   git commit -m "Agrega nueva feature"
+   git commit -m "Add new feature"
    ```
-4. Sube tus cambios:
+4. Push your changes:
    ```bash
-   git push origin feature/nueva-feature
+   git push origin feature/new-feature
    ```
-5. Abre un Pull Request.
+5. Open a Pull Request.
 
-## Licencia
+## License
 
-Este proyecto está licenciado bajo la [MIT License](LICENSE).
+This project is licensed under the [MIT License](LICENSE).

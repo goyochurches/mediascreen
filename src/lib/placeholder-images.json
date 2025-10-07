@@ -1,0 +1,22 @@
+{
+  "placeholderImages": [
+    {
+      "id": "img1",
+      "description": "Mountain sunrise over a lake.",
+      "imageUrl": "https://images.unsplash.com/photo-1558883493-8b86ff880fec?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtb3VudGFpbiUyMHN1bnJpc2V8ZW58MHx8fHwxNzU5NjcxMTgzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "mountain sunrise"
+    },
+    {
+      "id": "img2",
+      "description": "A bustling city skyline at night.",
+      "imageUrl": "https://images.unsplash.com/photo-1506606401543-2e73709cebb4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxjaXR5JTIwbmlnaHR8ZW58MHx8fHwxNzU5NzQzMzkwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "city night"
+    },
+    {
+      "id": "img3",
+      "description": "A sunlit path through a dense forest.",
+      "imageUrl": "https://images.unsplash.com/photo-1592859600972-1b0834d83747?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmb3Jlc3QlMjBwYXRofGVufDB8fHx8MTc1OTY4NTEzOXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "forest path"
+    }
+  ]
+}
