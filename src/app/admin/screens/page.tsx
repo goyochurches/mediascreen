@@ -21,6 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { playlistConverter, screenConverter } from '@/firebase';
 import { useAuth } from "@/firebase/auth/use-user";
 import { useFirestore } from "@/firebase/provider";
 import { useCollection } from "@/firebase/use-collection";
@@ -36,8 +37,20 @@ export default function ScreensPage() {
   const { user } = useAuth();
   const { toast } = useToast();
   
-  const screensQuery = user && firestore ? query(collection(firestore, 'screens'), where('userId', '==', user.uid)) : null;
-  const playlistsQuery = user && firestore ? query(collection(firestore, 'playlists'), where('userId', '==', user.uid)) : null;
+  // Apply FirestoreDataConverter to fix type issues
+  const screensQuery = user && firestore
+    ? query(
+        collection(firestore, 'screens').withConverter(screenConverter),
+        where('userId', '==', user.uid)
+      )
+    : null;
+
+  const playlistsQuery = user && firestore
+    ? query(
+        collection(firestore, 'playlists').withConverter(playlistConverter),
+        where('userId', '==', user.uid)
+      )
+    : null;
   
   const { data: screens, loading: screensLoading } = useCollection<Omit<Screen, 'id' | 'userId' | 'createdAt'>>(screensQuery);
   const { data: playlists, loading: playlistsLoading } = useCollection<Omit<Playlist, 'id' | 'userId' | 'createdAt'>>(playlistsQuery);
@@ -57,6 +70,11 @@ export default function ScreensPage() {
     }
   };
   
+  // Ensure proper scheme and domain concatenation
+  const yourDomain = typeof window !== 'undefined' 
+    ? `${window.location.hostname === 'localhost' ? 'http' : 'https'}://${window.location.hostname}${window.location.port ? `:${window.location.port}` : ''}`
+    : '';
+
   return (
     <>
       <AdminHeader />
@@ -80,13 +98,14 @@ export default function ScreensPage() {
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>Assignments</TableHead>
+                <TableHead>Screen URL</TableHead>
                 <TableHead className="text-right w-[140px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={3} className="h-24 text-center">
+                  <TableCell colSpan={4} className="h-24 text-center">
                      <Loader2 className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
                   </TableCell>
                 </TableRow>
@@ -101,6 +120,18 @@ export default function ScreensPage() {
                             {getPlaylistName(assignment.playlistId)} ({assignment.startTime} - {assignment.endTime})
                           </Badge>
                         )) : <span className="text-muted-foreground text-sm">No assignments</span>}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-muted-foreground">{`${yourDomain}/display/${screen.id}`}</span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => navigator.clipboard.writeText(`${yourDomain}/display/${screen.id}`)}
+                        >
+                          Copy
+                        </Button>
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
@@ -138,7 +169,7 @@ export default function ScreensPage() {
                 ))
               ) : (
                  <TableRow>
-                  <TableCell colSpan={3} className="h-24 text-center">
+                  <TableCell colSpan={4} className="h-24 text-center">
                     No screens found. Create one to get started.
                   </TableCell>
                 </TableRow>
