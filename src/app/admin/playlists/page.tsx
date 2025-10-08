@@ -1,23 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { PlusCircle, Edit, Loader2, Trash2 } from "lucide-react";
-import { useCollection } from "@/firebase/use-collection";
-import { useFirestore } from "@/firebase/provider";
-import { collection, query, where, doc, deleteDoc } from "firebase/firestore";
-import type { Playlist } from "@/lib/types";
-import { AdminHeader } from "../_components/admin-header";
-import { useAuth } from "@/firebase/auth/use-user";
-import Link from "next/link";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,8 +10,25 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { useAuth } from "@/firebase/auth/use-user";
+import { useFirestore } from "@/firebase/provider";
+import { useCollection } from "@/firebase/use-collection";
 import { useToast } from "@/hooks/use-toast";
+import type { Playlist } from "@/lib/types";
+import { collection, deleteDoc, doc, FirestoreDataConverter, query, where } from "firebase/firestore";
+import { Edit, Loader2, PlusCircle, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { AdminHeader } from "../_components/admin-header";
 
 
 export default function PlaylistsPage() {
@@ -37,7 +36,25 @@ export default function PlaylistsPage() {
   const { user } = useAuth();
   const { toast } = useToast();
   
-  const playlistsQuery = user && firestore ? query(collection(firestore, 'playlists'), where('userId', '==', user.uid)) : null;
+  const playlistConverter: FirestoreDataConverter<Omit<Playlist, 'id' | 'userId' | 'createdAt'>> = {
+    toFirestore(playlist) {
+      return playlist;
+    },
+    fromFirestore(snapshot) {
+      const data = snapshot.data();
+      return {
+        name: data.name,
+        mediaItemIds: data.mediaItemIds,
+      };
+    },
+  };
+
+  const playlistsQuery = user && firestore
+    ? query(
+        collection(firestore, 'playlists').withConverter(playlistConverter),
+        where('userId', '==', user.uid)
+      )
+    : null;
 
   const { data: playlists, loading } = useCollection<Omit<Playlist, 'id' | 'userId' | 'createdAt'>>(playlistsQuery);
 
