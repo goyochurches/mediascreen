@@ -1,23 +1,14 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogFooter,
-  DialogDescription,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -28,35 +19,44 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import type { MediaItem } from '@/lib/types';
-import { PlusCircle, Video, Image as ImageIcon, Loader2 } from 'lucide-react';
-import Image from 'next/image';
-import { useToast } from '@/hooks/use-toast';
-import { useCollection } from '@/firebase/use-collection';
-import { useFirestore } from '@/firebase/provider';
 import {
-  collection,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { useAuth } from '@/firebase/auth/use-user';
+import { useFirestore } from '@/firebase/provider';
+import { useCollection } from '@/firebase/use-collection';
+import { useToast } from '@/hooks/use-toast';
+import { mediaItemConverter, type MediaItem } from '@/lib/types';
+import {
   addDoc,
-  serverTimestamp,
+  collection,
   query,
+  serverTimestamp,
   where,
 } from 'firebase/firestore';
+import { Image as ImageIcon, Loader2, PlusCircle, Video } from 'lucide-react';
+import Image from 'next/image';
+import { useMemo, useState } from 'react';
 import { AdminHeader } from '../_components/admin-header';
-import { useAuth } from '@/firebase/auth/use-user';
 
 export default function ContentPage() {
   const firestore = useFirestore();
   const { user } = useAuth();
 
-  const mediaItemsQuery = useMemo(() => {
-    if (user && firestore) {
-      return query(
-        collection(firestore, 'mediaItems'),
-        where('userId', '==', user.uid)
-      );
-    }
-    return null;
-  }, [user, firestore]);
+const mediaItemsQuery = useMemo(() => {
+  if (user && firestore) {
+    return query(
+      collection(firestore, 'mediaItems').withConverter(mediaItemConverter),
+      where('userId', '==', user.uid)
+    );
+  }
+  return null;
+}, [user, firestore]);
 
   const { data: mediaItems, loading } = useCollection<
     Omit<MediaItem, 'id' | 'userId'>
