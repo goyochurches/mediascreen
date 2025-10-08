@@ -17,6 +17,25 @@ export default function ScreenDisplayPage() {
     }
   };
 
+  // Keep local state in sync with actual fullscreen status
+  useEffect(() => {
+    const onChange = () => setIsFullScreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', onChange);
+    return () => document.removeEventListener('fullscreenchange', onChange);
+  }, []);
+
+  // Try to enter fullscreen automatically on page load.
+  // If the browser blocks it due to missing user gesture, the fallback button remains.
+  useEffect(() => {
+    // Small delay to allow mounting/route ready
+    const id = setTimeout(() => {
+      if (!document.fullscreenElement) {
+        enterFullScreen();
+      }
+    }, 100);
+    return () => clearTimeout(id);
+  }, []);
+
   useEffect(() => {
     if (isFullScreen) {
       const handleEscape = (e: KeyboardEvent) => {
