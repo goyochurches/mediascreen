@@ -10,13 +10,13 @@ import {
 } from 'firebase/firestore'
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyAs_ilNfv55xA35y4tY4fbbAopMBnMI8A8',
-  authDomain: 'lds-project-97d49.firebaseapp.com',
-  databaseURL: 'https://lds-project-97d49-default-rtdb.firebaseio.com',
-  projectId: 'lds-project-97d49',
-  storageBucket: 'lds-project-97d49.firebasestorage.app',
-  messagingSenderId: '67203703590',
-  appId: '1:67203703590:web:f954a08fb1577f1959d7e7',
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY!,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN!,
+  databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID!,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET!,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID!,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID!,
 }
 
 let firebaseApp: FirebaseApp
