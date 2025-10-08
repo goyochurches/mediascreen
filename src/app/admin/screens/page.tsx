@@ -27,7 +27,7 @@ import { useFirestore } from "@/firebase/provider";
 import { useCollection } from "@/firebase/use-collection";
 import { useToast } from "@/hooks/use-toast";
 import type { Playlist, Screen } from "@/lib/types";
-import { collection, deleteDoc, doc, query, where } from "firebase/firestore";
+import { Timestamp, collection, deleteDoc, doc, query, where } from "firebase/firestore";
 import { Edit, Loader2, PlusCircle, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { AdminHeader } from "../_components/admin-header";
@@ -99,6 +99,7 @@ export default function ScreensPage() {
                 <TableHead>Name</TableHead>
                 <TableHead>Assignments</TableHead>
                 <TableHead>Screen URL</TableHead>
+                <TableHead>Active</TableHead>
                 <TableHead className="text-right w-[140px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -133,6 +134,9 @@ export default function ScreensPage() {
                           Copy
                         </Button>
                       </div>
+                    </TableCell>
+                    <TableCell>
+                      <ActiveDisplaysBadge screenId={screen.id} />
                     </TableCell>
                     <TableCell className="text-right">
                        <Button variant="ghost" size="icon" asChild>
@@ -179,5 +183,25 @@ export default function ScreensPage() {
         </div>
       </div>
     </>
+  );
+}
+
+function ActiveDisplaysBadge({ screenId }: { screenId: string }) {
+  const firestore = useFirestore();
+  const threshold = Timestamp.fromDate(new Date(Date.now() - 45_000)); // last 45s
+  const q = firestore
+    ? query(
+        collection(firestore, 'displaySessions'),
+        where('screenId', '==', screenId),
+        where('status', '==', 'open'),
+        where('updatedAt', '>=', threshold),
+      )
+    : null;
+  const { data } = useCollection<any>(q);
+  const count = data?.length ?? 0;
+  return (
+    <Badge variant={count > 0 ? 'default' : 'secondary'}>
+      {count} active
+    </Badge>
   );
 }

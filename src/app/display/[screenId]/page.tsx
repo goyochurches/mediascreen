@@ -3,11 +3,15 @@
 import MediaViewer from '@/components/media-viewer';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { useFirestore } from '@/firebase/provider';
+import { addDoc, collection, doc, serverTimestamp, setDoc } from 'firebase/firestore';
 
 export default function ScreenDisplayPage() {
   const params = useParams();
   const screenId = params.screenId as string;
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const firestore = useFirestore();
+  const [sessionId, setSessionId] = useState<string | null>(null);
 
   const enterFullScreen = () => {
     if (document.documentElement.requestFullscreen) {
@@ -52,6 +56,86 @@ export default function ScreenDisplayPage() {
       };
     }
   }, [isFullScreen]);
+
+  // Presence tracking: create a session and send heartbeats
+  useEffect(() => {
+    if (!firestore || !screenId) return;
+
+    let interval: number | null = null;
+    let currentSessionId: string | null = null;
+
+    const startSession = async () => {
+      try {
+        const sessionsCol = collection(firestore, 'displaySessions');
+        const ua = typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown';
+        const res = await addDoc(sessionsCol, {
+          screenId,
+          startedAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+          status: 'open',
+          userAgent: ua,
+        });
+        currentSessionId = res.id;
+        setSessionId(res.id);
+
+        // Heartbeat every 15s
+        interval = window.setInterval(async () => {
+          try {
+            if (!currentSessionId) return;
+            await setDoc(
+              doc(firestore, 'displaySessions', currentSessionId),
+              { updatedAt: serverTimestamp(), status: 'open' },
+              { merge: true }
+            );
+          } catch (e) {
+            console.error('Heartbeat error', e);
+          }
+        }, 15000);
+
+        // On unload, mark as closed
+        const onUnload = async () => {
+          try {
+            if (!currentSessionId) return;
+            await setDoc(
+              doc(firestore, 'displaySessions', currentSessionId),
+              { status: 'closed', closedAt: serverTimestamp(), updatedAt: serverTimestamp() },
+              { merge: true }
+            );
+          } catch (e) {
+            // ignore
+          }
+        };
+        window.addEventListener('beforeunload', onUnload);
+        window.addEventListener('pagehide', onUnload);
+
+        return () => {
+          window.removeEventListener('beforeunload', onUnload);
+          window.removeEventListener('pagehide', onUnload);
+        };
+      } catch (e) {
+        console.error('Failed to start display session', e);
+      }
+    };
+
+    const cleanup = () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+
+    const unsubPromise = startSession();
+    return () => {
+      cleanup();
+      // best-effort mark closed on unmount
+      if (firestore && currentSessionId) {
+        setDoc(
+          doc(firestore, 'displaySessions', currentSessionId),
+          { status: 'closed', closedAt: serverTimestamp(), updatedAt: serverTimestamp() },
+          { merge: true }
+        ).catch(() => {});
+      }
+    };
+  }, [firestore, screenId]);
 
   if (!screenId) {
     // This can happen briefly on initial render, before router is ready.
