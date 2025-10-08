@@ -84,7 +84,7 @@ const mediaItemsQuery = useMemo(() => {
       return;
     }
 
-    const newMedia: Omit<MediaItem, 'id'> = {
+    const newMedia: Omit<MediaItem, 'id' | 'createdAt'> = {
       title,
       type,
       url,
