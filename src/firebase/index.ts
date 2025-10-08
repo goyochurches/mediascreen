@@ -7,6 +7,7 @@ import {
   getFirestore,
   type Firestore,
 } from 'firebase/firestore'
+import type { Screen } from '@/lib/types'
 
 const firebaseConfig = {
   apiKey: 'AIzaSyAs_ilNfv55xA35y4tY4fbbAopMBnMI8A8',
@@ -38,15 +39,6 @@ export function initializeFirebase() {
   return initialize()
 }
 
-// FirestoreDataConverter for Screen
-export type Screen = {
-  id: string
-  name: string
-  assignments: any[]
-  userId: string
-  createdAt: Date
-}
-
 export const screenConverter: FirestoreDataConverter<Screen> = {
   toFirestore(screen: Screen) {
     return {
@@ -63,7 +55,7 @@ export const screenConverter: FirestoreDataConverter<Screen> = {
       name: data.name,
       assignments: data.assignments,
       userId: data.userId,
-      createdAt: data.createdAt.toDate(),
+      createdAt: data.createdAt?.toDate?.() ?? data.createdAt,
     }
   },
 }

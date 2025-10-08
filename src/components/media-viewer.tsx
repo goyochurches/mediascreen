@@ -27,7 +27,10 @@ const MediaViewer = ({ screenId }: MediaViewerProps) => {
 
   const screenRef = useMemoFirebase(() => {
     if (!firestore || !screenId) return null;
-    return doc(firestore, 'screens', screenId);
+    return doc(firestore, 'screens', screenId).withConverter<Omit<Screen, 'id'>>({
+      toFirestore: (data) => data as any,
+      fromFirestore: (snapshot) => snapshot.data() as Omit<Screen, 'id'>,
+    });
   }, [firestore, screenId]);
 
   const { data: screen, loading: screenLoading } = useDoc<Omit<Screen, 'id'>>(screenRef);
@@ -36,22 +39,34 @@ const MediaViewer = ({ screenId }: MediaViewerProps) => {
   useEffect(() => {
     if (screenLoading) return;
     if (screen && screen.exists()) {
-        setScreenOwnerId(screen.data().userId);
-        setScreenNotFound(false);
+      setScreenOwnerId(screen.data().userId);
+      setScreenNotFound(false);
     } else {
-        setScreenNotFound(true);
+      setScreenNotFound(true);
     }
   }, [screen, screenLoading]);
 
 
   const playlistsRef = useMemoFirebase(() => {
     if (!firestore || !screenOwnerId) return null;
-    return query(collection(firestore, 'playlists'), where('userId', '==', screenOwnerId));
+    return query(
+      collection(firestore, 'playlists').withConverter<Omit<Playlist, 'id'>>({
+        toFirestore: (data) => data as any,
+        fromFirestore: (snapshot) => snapshot.data() as Omit<Playlist, 'id'>,
+      }),
+      where('userId', '==', screenOwnerId)
+    );
   }, [firestore, screenOwnerId]);
 
   const mediaItemsRef = useMemoFirebase(() => {
     if (!firestore || !screenOwnerId) return null;
-    return query(collection(firestore, 'mediaItems'), where('userId', '==', screenOwnerId));
+    return query(
+      collection(firestore, 'mediaItems').withConverter<Omit<MediaItem, 'id'>>({
+        toFirestore: (data) => data as any,
+        fromFirestore: (snapshot) => snapshot.data() as Omit<MediaItem, 'id'>,
+      }),
+      where('userId', '==', screenOwnerId)
+    );
   }, [firestore, screenOwnerId]);
 
   const { data: playlists, loading: playlistsLoading } = useCollection<Omit<Playlist, 'id'>>(playlistsRef);
@@ -66,14 +81,14 @@ const MediaViewer = ({ screenId }: MediaViewerProps) => {
     if (screenLoading || !screen || !screen.exists() || playlistsLoading || mediaItemsLoading) {
       return;
     }
-    
+
     if (!playlists || !mediaItems) {
       return;
     }
 
     const screenData = screen.data();
     if (!screenData) return;
-    
+
     const populatedAssignments = screenData.assignments.map(assignment => {
       const playlist = playlists.find(p => p.id === assignment.playlistId);
       if (!playlist) return null;
@@ -82,8 +97,10 @@ const MediaViewer = ({ screenId }: MediaViewerProps) => {
         .map(id => mediaItems.find(m => m.id === id))
         .filter((item): item is MediaItem => item !== undefined);
 
+      // Omit playlistId to match PopulatedAssignment type
+      const { playlistId: _omit, ...rest } = assignment;
       return {
-        ...assignment,
+        ...rest,
         media: populatedMedia,
       };
     }).filter((assignment): assignment is PopulatedAssignment => assignment !== null);
@@ -98,7 +115,7 @@ const MediaViewer = ({ screenId }: MediaViewerProps) => {
     const checkSchedule = () => {
       const now = new Date();
       // In a real app, you might want to handle timezones properly.
-      const currentDay = now.getDay(); 
+      const currentDay = now.getDay();
       const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
 
       const activeAssignment = assignments.find(a =>
@@ -108,7 +125,7 @@ const MediaViewer = ({ screenId }: MediaViewerProps) => {
       );
 
       const newPlaylist = activeAssignment ? (activeAssignment.media.filter(Boolean) as MediaItem[]) : [];
-      
+
       setActivePlaylist(currentPlaylist => {
         const currentIds = currentPlaylist.map(i => i.id).join(',');
         const newIds = newPlaylist.map(i => i.id).join(',');
@@ -124,7 +141,7 @@ const MediaViewer = ({ screenId }: MediaViewerProps) => {
 
     // Initial check
     checkSchedule();
-    
+
     // Set up an interval to check for schedule changes (e.g., time crossing into a new slot)
     const scheduleInterval = setInterval(checkSchedule, 30000); // Check every 30 seconds
 
@@ -142,7 +159,7 @@ const MediaViewer = ({ screenId }: MediaViewerProps) => {
       setIsFading(false);
     }, 500); // Must match CSS fade duration
   };
-  
+
   const currentItem = activePlaylist[currentItemIndex];
 
   // Effect for handling auto-progression of images
@@ -154,30 +171,30 @@ const MediaViewer = ({ screenId }: MediaViewerProps) => {
       const timer = setTimeout(goToNextItem, duration);
       return () => clearTimeout(timer);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentItemIndex, activePlaylist, currentItem]);
 
   const handleVideoError = () => {
     console.error(`Failed to load video: ${currentItem?.url}`);
     goToNextItem();
   };
-  
+
   const isLoading = screenLoading || (screenOwnerId && (playlistsLoading || mediaItemsLoading));
 
   if (isLoading) {
     return (
-       <div className="w-full h-full flex flex-col items-center justify-center text-white/80 text-2xl font-sans bg-black p-8 text-center gap-4">
+      <div className="w-full h-full flex flex-col items-center justify-center text-white/80 text-2xl font-sans bg-black p-8 text-center gap-4">
         <Loader2 className="w-12 h-12 animate-spin text-accent" />
         <div>
-            <p className='text-3xl font-bold mb-2 text-white'>{screen?.data()?.name || 'Screen'}</p>
-            <p className="text-xl text-muted-foreground">Preparing your content...</p>
+          <p className='text-3xl font-bold mb-2 text-white'>{screen?.data()?.name || 'Screen'}</p>
+          <p className="text-xl text-muted-foreground">Preparing your content...</p>
         </div>
       </div>
     )
   }
 
   if (screenNotFound) {
-     return (
+    return (
       <div className="w-full h-full flex flex-col items-center justify-center text-white/80 text-2xl font-sans bg-black p-8 text-center">
         <p className='text-4xl font-bold mb-2 text-white'>Screen Not Found</p>
         <p>The screen ID might be incorrect or it has been removed.</p>

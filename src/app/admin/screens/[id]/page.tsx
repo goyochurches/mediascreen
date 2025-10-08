@@ -33,7 +33,8 @@ import { useFirestore } from '@/firebase/provider';
 import { useCollection } from '@/firebase/use-collection';
 import { useDoc } from '@/firebase/use-doc';
 import { useToast } from '@/hooks/use-toast';
-import type { Playlist, PlaylistAssignment, Screen } from '@/lib/types';
+import type { PlaylistAssignment, Screen } from '@/lib/types';
+import { playlistConverter, screenConverter, type Playlist as FirePlaylist } from '@/firebase';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { addDoc, collection, doc, query, serverTimestamp, setDoc, where } from 'firebase/firestore';
 import {
@@ -84,11 +85,19 @@ export default function ScreenEditPage() {
   const isNew = params.id === 'new';
   const screenId = isNew ? null : (params.id as string);
 
-  const screenRef = firestore && user && screenId ? doc(firestore, 'screens', screenId) : null;
+  const screenRef =
+    firestore && user && screenId
+      ? doc(firestore, 'screens', screenId).withConverter(screenConverter)
+      : null;
   const { data: screenDoc, loading: screenLoading } = useDoc<Screen>(screenRef);
   
-  const playlistsQuery = user && firestore ? query(collection(firestore, 'playlists'), where('userId', '==', user.uid)) : null;
-  const { data: playlists, loading: playlistsLoading } = useCollection<Playlist>(playlistsQuery);
+  const playlistsQuery = user && firestore
+    ? query(
+        collection(firestore, 'playlists').withConverter(playlistConverter),
+        where('userId', '==', user.uid)
+      )
+    : null;
+  const { data: playlists, loading: playlistsLoading } = useCollection<FirePlaylist>(playlistsQuery);
 
   const [assignments, setAssignments] = useState<PlaylistAssignment[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
