@@ -26,7 +26,7 @@ import { useDoc } from '@/firebase/use-doc';
 import { useToast } from '@/hooks/use-toast';
 import type { MediaItem, Playlist } from '@/lib/types';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { addDoc, collection, doc, query, serverTimestamp, setDoc, where } from 'firebase/firestore';
+import { addDoc, collection, doc, query, QueryDocumentSnapshot, serverTimestamp, setDoc, where } from 'firebase/firestore';
 import {
   ArrowLeft,
   GripVertical,
@@ -59,17 +59,32 @@ export default function PlaylistEditPage() {
   const isNew = params.id === 'new';
   const playlistId = isNew ? null : (params.id as string);
 
+  const playlistConverter = {
+    toFirestore: (data: Omit<Playlist, 'id'>) => data,
+    fromFirestore: (snapshot: QueryDocumentSnapshot) =>
+      snapshot.data() as Omit<Playlist, 'id'>,
+  };
+
   const playlistRef =
     firestore && user && playlistId
-      ? doc(firestore, 'playlists', playlistId)
+      ? doc(firestore, 'playlists', playlistId).withConverter(playlistConverter)
       : null;
   const { data: playlistDoc, loading: playlistLoading } = useDoc<
     Omit<Playlist, 'id'>
   >(playlistRef);
 
+  const mediaItemConverter = {
+    toFirestore: (data: Omit<MediaItem, 'id' | 'createdAt'>) => data,
+    fromFirestore: (snapshot: QueryDocumentSnapshot) =>
+      snapshot.data() as Omit<MediaItem, 'id' | 'createdAt'>,
+  };
+  
   const mediaItemsQuery =
     user && firestore
-      ? query(collection(firestore, 'mediaItems'), where('userId', '==', user.uid))
+      ? query(
+          collection(firestore, 'mediaItems').withConverter(mediaItemConverter),
+          where('userId', '==', user.uid)
+        )
       : null;
   const { data: mediaItems, loading: mediaLoading } = useCollection<
     Omit<MediaItem, 'id' | 'createdAt'>
