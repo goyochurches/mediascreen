@@ -1,5 +1,6 @@
 'use client'
 
+import type { Screen } from '@/lib/types'
 import { getApps, initializeApp, type FirebaseApp } from 'firebase/app'
 import { getAuth, type Auth } from 'firebase/auth'
 import {
@@ -7,7 +8,6 @@ import {
   getFirestore,
   type Firestore,
 } from 'firebase/firestore'
-import type { Screen } from '@/lib/types'
 
 const firebaseConfig = {
   apiKey: 'AIzaSyAs_ilNfv55xA35y4tY4fbbAopMBnMI8A8',

@@ -1,7 +1,7 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Clapperboard, User } from "lucide-react";
 import Link from "next/link";
-import { Clapperboard, MonitorPlay, User, Clock } from "lucide-react";
 
 export default function Home() {
   return (
@@ -19,45 +19,7 @@ export default function Home() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12 w-full max-w-6xl">
-        <Card className="hover:border-accent transition-colors duration-300">
-          <CardHeader>
-            <div className="flex items-center gap-4">
-              <MonitorPlay className="w-8 h-8 text-accent" />
-              <CardTitle className="text-2xl font-headline">Lobby Screen</CardTitle>
-            </div>
-            <CardDescription>
-              View the main lobby screen display.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button className="w-full" variant="secondary" asChild>
-              <Link href="/display/1">
-                Go to Lobby Screen
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:border-accent transition-colors duration-300">
-          <CardHeader>
-            <div className="flex items-center gap-4">
-              <Clock className="w-8 h-8 text-accent" />
-              <CardTitle className="text-2xl font-headline">24h Screen</CardTitle>
-            </div>
-            <CardDescription>
-              A screen that displays content 24/7.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button className="w-full" variant="secondary" asChild>
-              <Link href="/display/3">
-                Go to 24h Screen
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-        
-        <Card className="hover:border-accent transition-colors duration-300 md:col-span-2 lg:col-span-1">
+        <Card className="hover:border-accent transition-colors duration-300 md:col-span-6 lg:col-span-1">
           <CardHeader>
             <div className="flex items-center gap-4">
               <User className="w-8 h-8 text-accent" />
@@ -77,7 +39,7 @@ export default function Home() {
         </Card>
       </div>
        <footer className="mt-16 text-center text-muted-foreground text-sm">
-        <p>Powered by Next.js and ShadCN UI. Styled for a modern, professional experience.</p>
+        <p>Powered by goyochurches.</p>
       </footer>
     </main>
   );
